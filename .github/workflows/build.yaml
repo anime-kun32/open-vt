@@ -1,5 +1,4 @@
 name: Build OpenVT
-
 on:
   workflow_dispatch:
     inputs:
@@ -7,14 +6,11 @@ on:
         description: "Release tag (example: v0.1.0)"
         required: true
         default: "v0.1.0"
-
 permissions:
   contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo + submodules
         uses: actions/checkout@v4
@@ -52,6 +48,15 @@ jobs:
           chmod +x build_dependencies.sh
           ./build_dependencies.sh
 
+      - name: Download and install gd_cubism addon
+        run: |
+          GD_CUBISM_VERSION="v0.9.1"
+          wget https://github.com/MizunagiKB/gd_cubism/releases/download/${GD_CUBISM_VERSION}/gd_cubism-${GD_CUBISM_VERSION}-linux.zip \
+            -O gd_cubism.zip
+          unzip gd_cubism.zip -d gd_cubism_extracted
+          mkdir -p addons
+          cp -r gd_cubism_extracted/addons/gd_cubism addons/gd_cubism
+
       - name: Import project
         run: |
           xvfb-run godot --headless --path . --import
@@ -62,7 +67,7 @@ jobs:
           xvfb-run godot \
             --headless \
             --path . \
-            --export-release "Linux/X11" \
+            --export-release "linux" \
             build/openvt.x86_64
 
       - name: Create Tag
