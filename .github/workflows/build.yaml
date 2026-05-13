@@ -67,6 +67,27 @@ jobs:
           chmod +x build_dependencies.sh
           ./build_dependencies.sh
 
+      - name: Verify and copy built GDExtension binaries
+        run: |
+          echo "=== Checking built outputs ==="
+          find thirdparty -name "*.so" 2>/dev/null || echo "No .so files found in thirdparty!"
+          find addons -name "*.so" 2>/dev/null || echo "No .so files found in addons!"
+          
+          echo "=== Copying gd_cubism binaries ==="
+          mkdir -p addons/gd_cubism/bin
+          find thirdparty/gd_cubism -name "libgd_cubism.linux*.so" -exec cp {} addons/gd_cubism/bin/ \;
+          
+          echo "=== Copying gd-virtualcamera binaries ==="
+          mkdir -p addons/gd-virtualcamera/linux
+          find thirdparty/gd-virtualcamera -name "libgd-virtualcamera.linux*.so" -exec cp {} addons/gd-virtualcamera/linux/ \;
+          
+          echo "=== Copying keylogger binaries ==="
+          mkdir -p addons/keylogger
+          find thirdparty/godot-keylogger -name "*.so" -exec cp {} addons/keylogger/ \;
+          
+          echo "=== Final addon binaries ==="
+          find addons -name "*.so"
+
       - name: Import project
         run: |
           xvfb-run godot --headless --path . --import || true
